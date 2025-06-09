@@ -92,10 +92,10 @@ func pageFooter(crumbs ...string) lmth.Node {
 		Nav(lmth.Attr{},
 			Ul(lmth.Attr{},
 				Li(lmth.Attr{},
-					A(lmth.Attr{"href": "https://hawx.me/"}, lmth.Text("home")),
+					A(lmth.Attr{"href": "https://www.rosshendry.com/"}, lmth.Text("home")),
 				),
 				Li(lmth.Attr{},
-					A(lmth.Attr{"href": "https://me.hawx.me/"}, lmth.Text("blog")),
+					A(lmth.Attr{"href": "https://blog.rosshendry.com/"}, lmth.Text("blog")),
 				),
 				lmth.Map2(func(i int, _ string) lmth.Node {
 					if i%2 == 1 {
@@ -112,6 +112,6 @@ func pageFooter(crumbs ...string) lmth.Node {
 				}, crumbs),
 			),
 		),
-		P(lmth.Attr{"class": "copyright"}, lmth.Text("© 2024 Joshua Hawxwell.")),
+		P(lmth.Attr{"class": "copyright"}, lmth.Text("© 2025 Ross Hendry")),
 	)
 }
