@@ -171,6 +171,9 @@ func main() {
 
 	http.Handle("/", b.Handler())
 
+	http.Handle("/-/media-file/",
+		http.StripPrefix("/-/media-file/", http.FileServer(http.Dir(conf.MediaDir))),
+	)
 	http.Handle("/public/",
 		http.StripPrefix("/public/",
 			http.FileServer(
