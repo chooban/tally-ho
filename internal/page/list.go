@@ -79,6 +79,8 @@ func pageHead(title string, nodes ...lmth.Node) lmth.Node {
 		Meta(lmth.Attr{"content": "width=device-width, initial-scale=1", "name": "viewport"}),
 		Link(lmth.Attr{"rel": "stylesheet", "href": "/public/styles.css", "type": "text/css"}),
 		Link(lmth.Attr{"rel": "webmention", "href": "/-/webmention"}),
+		Link(lmth.Attr{"rel": "authorization_endpoint", "href": "https://indieauth.com/auth"}),
+		Link(lmth.Attr{"rel": "token_endpoint", "href": "https://tokens.indieauth.com/token"}),
 		Link(lmth.Attr{"rel": "alternative", "href": "/feed/atom", "type": "application/atom+xml"}),
 		Link(lmth.Attr{"rel": "alternative", "href": "/feed/jsonfee", "type": "application/json"}),
 		Link(lmth.Attr{"rel": "alternative", "href": "/feed/rss", "type": "application/rss+xml"}),

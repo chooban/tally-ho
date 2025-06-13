@@ -45,6 +45,7 @@ func Only(me string, next http.Handler) http.HandlerFunc {
 			return
 		}
 		req.Header.Add("Authorization", auth)
+		req.Header.Add("Accept", "application/json")
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {

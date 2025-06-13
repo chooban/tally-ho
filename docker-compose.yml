@@ -1,0 +1,24 @@
+services:
+  blog:
+    build: .
+    env_file: ".env"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./*
+    volumes:
+      - ./mymedia:/media
+      - ./myweb:/web
+    ports:
+      - "8080:8080"
+  ngrok:
+      image: ngrok/ngrok:latest
+      command:
+        - "http"
+        - "http://host.docker.internal:8080"
+        - "--url"
+        - ${NGROK_HOSTNAME}
+      environment:
+        NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+      ports:
+        - 4040:4040

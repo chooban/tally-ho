@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"flag"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -13,7 +12,6 @@ import (
 	// register sqlite3 for database/sql
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/BurntSushi/toml"
 	"hawx.me/code/serve"
 	"hawx.me/code/tally-ho/auth"
 	"hawx.me/code/tally-ho/blog"
@@ -42,6 +40,9 @@ type config struct {
 	Description string
 	BaseURL     string
 	MediaURL    string
+	MediaDir    string
+	DbPath      string
+	WebPath     string
 
 	Flickr, Twitter struct {
 		ConsumerKey       string
@@ -53,28 +54,16 @@ type config struct {
 	Github struct {
 		AccessToken string
 	}
+	Port   string
+	Socket string
 }
 
 func main() {
-	var (
-		configPath = flag.String("config", "./config.toml", "")
-		webPath    = flag.String("web", "web", "")
-		dbPath     = flag.String("db", "file::memory:", "")
-		mediaDir   = flag.String("media-dir", "", "")
-		port       = flag.String("port", "8080", "")
-		socket     = flag.String("socket", "", "")
-	)
-	flag.Usage = usage
-	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 	slog.SetDefault(logger)
 
-	var conf config
-	if _, err := toml.DecodeFile(*configPath, &conf); err != nil {
-		logger.Error("config could not be decoded", slog.Any("err", err))
-		return
-	}
+	var conf = parseConfig(logger)
 
 	baseURL, err := url.Parse(conf.BaseURL)
 	if err != nil {
@@ -88,14 +77,14 @@ func main() {
 		return
 	}
 
-	db, err := sql.Open("sqlite3", *dbPath)
+	db, err := sql.Open("sqlite3", conf.DbPath)
 	if err != nil {
-		logger.Error("error opening sqlite file", slog.String("path", *dbPath), slog.Any("err", err))
+		logger.Error("error opening sqlite file", slog.String("path", conf.DbPath), slog.Any("err", err))
 		return
 	}
 
 	fw := &blog.FileWriter{
-		MediaDir: *mediaDir,
+		MediaDir: conf.MediaDir,
 		MediaURL: mediaURL,
 	}
 
@@ -171,7 +160,7 @@ func main() {
 		Description: conf.Description,
 		BaseURL:     baseURL,
 		MediaURL:    mediaURL,
-		MediaDir:    *mediaDir,
+		MediaDir:    conf.MediaDir,
 		HubURL:      baseURL.ResolveReference(hubEndpointURL).String(),
 	}, db, websubhub, blogSilos)
 	if err != nil {
@@ -185,7 +174,7 @@ func main() {
 	http.Handle("/public/",
 		http.StripPrefix("/public/",
 			http.FileServer(
-				http.Dir(filepath.Join(*webPath, "static")))))
+				http.Dir(filepath.Join(conf.WebPath, "static")))))
 
 	http.Handle("/-/micropub", micropub.Endpoint(
 		b,
@@ -197,5 +186,5 @@ func main() {
 	http.Handle("/-/media", auth.Only(conf.Me, media.Endpoint(fw, auth.HasScope)))
 	http.Handle("/-/hub", websubhub)
 
-	serve.Serve(*port, *socket, http.DefaultServeMux)
+	serve.Serve(conf.Port, conf.Socket, http.DefaultServeMux)
 }
