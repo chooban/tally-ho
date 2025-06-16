@@ -54,6 +54,10 @@ type config struct {
 	Github struct {
 		AccessToken string
 	}
+	Bluesky struct {
+		Handle string
+		AppKey string
+	}
 	Port   string
 	Socket string
 }
@@ -62,6 +66,7 @@ func main() {
 
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 	slog.SetDefault(logger)
+	slog.SetLogLoggerLevel(slog.LevelInfo)
 
 	var conf = parseConfig(logger)
 
@@ -140,6 +145,24 @@ func main() {
 				Name: github.Name(),
 			})
 		}
+	}
+
+	if conf.Bluesky.AppKey != "" {
+		bluesky, err := silos.Bluesky(silos.BlueskyOptions{
+			Handle: conf.Bluesky.Handle,
+			AppKey: conf.Bluesky.AppKey,
+		})
+		if err != nil {
+			logger.Warn("bluesky", slog.Any("err", err))
+		} else {
+			blogSilos = append(blogSilos, bluesky)
+			micropubSyndicateTo = append(micropubSyndicateTo, micropub.SyndicateTo{
+				UID:  bluesky.UID(),
+				Name: bluesky.Name(),
+			})
+		}
+	} else {
+		logger.Info("Not configuring Bluesky syndicator")
 	}
 
 	hubStore, err := blog.NewHubStore(db)

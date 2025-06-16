@@ -62,7 +62,7 @@ func Flickr(options FlickrOptions) (*flickrClient, error) {
 		User struct {
 			Username struct {
 				Content string `json:"_content"`
-			} `json:"username"`
+			} `json:"Handle"`
 		} `json:"user"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
@@ -217,7 +217,7 @@ func (c *flickrClient) ResolveCite(u string) (map[string]interface{}, error) {
 			ID    string `json:"id"`
 			Owner struct {
 				NSID     string `json:"nsid"`
-				Username string `json:"username"`
+				Username string `json:"Handle"`
 				Name     string `json:"realname"`
 			} `json:"owner"`
 			Title struct {

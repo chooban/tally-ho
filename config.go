@@ -9,17 +9,19 @@ import (
 )
 
 const (
-	DbPath      = "DB_PATH"
-	MediaDir    = "MEDIA_DIR"
-	WebPath     = "WEB_PATH"
-	Port        = "PORT"
-	Socket      = "SOCKET"
-	MeUrl       = "MY_URL"
-	MeName      = "MY_NAME"
-	Title       = "SITE_TITLE"
-	Description = "SITE_DESCRIPTION"
-	BaseUrl     = "BASE_URL"
-	MediaUrl    = "MEDIA_URL"
+	DbPath        = "DB_PATH"
+	MediaDir      = "MEDIA_DIR"
+	WebPath       = "WEB_PATH"
+	Port          = "PORT"
+	Socket        = "SOCKET"
+	MeUrl         = "MY_URL"
+	MeName        = "MY_NAME"
+	Title         = "SITE_TITLE"
+	Description   = "SITE_DESCRIPTION"
+	BaseUrl       = "BASE_URL"
+	MediaUrl      = "MEDIA_URL"
+	BlueskyHandle = "BLUESKY_HANDLE"
+	BlueskyAppKey = "BLUESKY_APP_KEY"
 )
 
 func parseConfig(logger *slog.Logger) config {
@@ -84,6 +86,12 @@ func parseConfig(logger *slog.Logger) config {
 	}
 	if p := os.Getenv(MediaUrl); p != "" {
 		conf.MediaURL = p
+	}
+	if p := os.Getenv(BlueskyAppKey); p != "" {
+		conf.Bluesky.AppKey = p
+	}
+	if p := os.Getenv(BlueskyHandle); p != "" {
+		conf.Bluesky.Handle = p
 	}
 
 	return conf

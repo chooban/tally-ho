@@ -12,8 +12,8 @@ import (
 	"slices"
 	"strings"
 
-	"hawx.me/code/microformats/authorship"
 	"hawx.me/code/mux"
+	"willnorris.com/go/microformats"
 )
 
 type Blog interface {
@@ -41,7 +41,7 @@ func postHandler(blog Blog) http.HandlerFunc {
 			slog.Info("received webmention", slog.String("target", mention.target), slog.String("source", mention.source))
 
 			if err := processMention(mention, blog); err != nil {
-				slog.Error("process mention", slog.Any("err", err))
+				slog.Error("error processing mention", slog.Any("err", err))
 			}
 		}
 	}()
@@ -99,7 +99,7 @@ func processMention(mention webmention, blog Blog) error {
 		return nil
 	}
 
-	data := authorship.Parse(resp.Body, source)
+	data := microformats.Parse(resp.Body, source)
 
 	properties := map[string][]interface{}{}
 	for _, item := range data.Items {
@@ -108,6 +108,31 @@ func processMention(mention webmention, blog Blog) error {
 			break
 		}
 	}
+	if authors, ok := properties["author"]; ok {
+		if author, ok := authors[0].(*microformats.Microformat); ok {
+			a := make(map[string]interface{}, 1)
+			props := make(map[string]interface{}, 1)
+			props["name"] = author.Value
+			props["url"] = author.Properties["url"]
+
+			photo := author.Properties["photo"]
+			switch v := photo[0].(type) {
+			case string:
+				props["photo"] = v
+			case map[string]string:
+				props["photo"] = []interface{}{v["value"]}
+			}
+			props["nickname"] = author.Properties["nickname"]
+
+			a["name"] = author.Value
+			a["properties"] = props
+			delete(properties, "author")
+
+			properties["author"] = []interface{}{a}
+		}
+	}
+	delete(properties, "content")
+
 	properties["hx-target"] = []interface{}{mention.target}
 
 	if err := blog.Mention(mention.source, properties); err != nil {

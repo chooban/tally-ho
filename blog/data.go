@@ -2,6 +2,7 @@ package blog
 
 import (
 	"errors"
+	"log/slog"
 	"time"
 
 	"hawx.me/code/numbersix"
@@ -83,11 +84,14 @@ func (b *Blog) Mention(source string, data map[string][]interface{}) error {
 }
 
 func (b *Blog) MentionsForEntry(url string) (list []numbersix.Group, err error) {
+	slog.Info("looking for mentions for url: " + url)
 	triples, err := b.mentions.List(numbersix.Where("hx-target", url))
 	if err != nil {
 		return
 	}
 
+	slog.Info("Found mentions for url", "count", len(triples))
+	
 	list = numbersix.Grouped(triples)
 	return
 }

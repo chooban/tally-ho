@@ -17,7 +17,7 @@ func TestFlickr(t *testing.T) {
 		http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
 				if r.Method == "GET" && r.FormValue("method") == "flickr.test.login" {
-					w.Write([]byte(`{"user":{"username":{"_content":"someone"}}}`))
+					w.Write([]byte(`{"user":{"Handle":{"_content":"someone"}}}`))
 					return
 				}
 

@@ -2,6 +2,7 @@ package page
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -30,7 +31,7 @@ func Post(data PostData) lmth.Node {
 			lmth.Text("syndicated to "),
 			lmth.Map2(func(i int, syndication any) lmth.Node {
 				return lmth.Join(
-					A(lmth.Attr{"class": "u-syndication", "href": syndication.(string)},
+					A(lmth.Attr{"class": "u-syndication", "href": syndicationUrl(syndication.(string), "rosshendry.com")},
 						lmth.Text(templateSyndicationName(syndication.(string))),
 					),
 					lmth.Toggle(i != len(syn)-1, lmth.Text(", ")),
@@ -96,13 +97,13 @@ func Post(data PostData) lmth.Node {
 								lmth.Text(fmt.Sprintf("Interactions (%d)", len(data.Mentions))),
 								Ol(lmth.Attr{"class": "inner"},
 									lmth.Map(func(mention numbersix.Group) lmth.Node {
-										name := "mentioned by"
+										name := "mentioned by "
 										if mfutil.Has(mention.Properties, "in-reply-to") {
-											name = "reply from"
+											name = "reply from "
 										} else if mfutil.Has(mention.Properties, "repost-of") {
-											name = "reposted by"
+											name = "reposted by "
 										} else if mfutil.Has(mention.Properties, "like-of") {
-											name = "liked by"
+											name = "liked by "
 										}
 
 										subject := mention.Subject
@@ -113,13 +114,34 @@ func Post(data PostData) lmth.Node {
 												subject = templateGet(mention.Properties, "author.properties.url")
 											}
 										}
+										link := mention.Subject
+										if mfutil.Has(mention.Properties, "url") {
+											slog.Info("No url in mention")
+											link = templateGet(mention.Properties, "url")
+										}
 
-										return Li(lmth.Attr{},
-											lmth.Text(name),
-											A(lmth.Attr{"href": mention.Subject},
-												lmth.Text(subject),
-											),
-										)
+										slog.Info("Link: ", link)
+										replyContents := templateGet(mention.Properties, "name")
+										slog.Info("replyContents ", replyContents)
+										if replyContents == "" {
+											return Li(lmth.Attr{},
+												lmth.Text(name),
+												A(lmth.Attr{"href": link},
+													lmth.Text(subject),
+												),
+											)
+										} else {
+											return Li(lmth.Attr{},
+												lmth.Text(name),
+												A(lmth.Attr{"href": link},
+													lmth.Text(subject),
+												),
+												Br(lmth.Attr{}),
+												Span(lmth.Attr{"class": "span"},
+													lmth.Text(replyContents)),
+											)
+
+										}
 									}, data.Mentions),
 								),
 							),
@@ -190,5 +212,35 @@ func templateSyndicationName(u string) string {
 		return "GitHub"
 	}
 
+	if strings.HasPrefix(u, "at://") {
+		return "Bluesky"
+	}
+
 	return u
+}
+
+func syndicationUrl(atProtoUrl, handle string) string {
+	if strings.HasPrefix(atProtoUrl, "at://") {
+		// Split AT proto url into DID, collection, and RKEY
+
+		// Strip at:// prefix
+		atProtoUrl = strings.TrimPrefix(atProtoUrl, "at://")
+
+		pathParts := strings.Split(strings.Trim(atProtoUrl, "/"), "/")
+		if len(pathParts) < 2 {
+			return atProtoUrl
+		}
+
+		//did := pathParts[0]
+		collection := pathParts[1]
+		rkey := pathParts[2]
+
+		if collection != "app.bsky.feed.post" {
+			return atProtoUrl
+		}
+
+		httpsURL := fmt.Sprintf("https://bsky.app/profile/%s/post/%s", handle, rkey)
+		return httpsURL
+	}
+	return atProtoUrl
 }

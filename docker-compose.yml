@@ -1,16 +1,23 @@
 services:
   blog:
-    build: .
+    build:
+      dockerfile: Dockerfile-dev
     env_file: ".env"
     develop:
       watch:
-        - action: rebuild
-          path: ./*
+        - action: sync
+          path: ./internal/
+          target: /usr/src/app/internal
+        - action: sync
+          path: ./blog/
+          target: /usr/src/app/blog
     volumes:
-      - ./mymedia:/media
-      - ./myweb:/web
+      - ./localdev/mymedia:/media
+      - ./localdev/myweb:/web
+      - ./localdev/db:/db
     ports:
       - "8080:8080"
+
   ngrok:
       image: ngrok/ngrok:latest
       command:
