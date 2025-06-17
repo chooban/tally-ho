@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"willnorris.com/go/microformats"
 )
@@ -48,7 +49,7 @@ func resolveCard(u string) (card map[string]any, err error) {
 	data := microformats.Parse(resp.Body, uURL)
 
 	for _, item := range data.Items {
-		if contains("h-card", item.Type) {
+		if slices.Contains(item.Type, "h-card") {
 			card = map[string]any{
 				"type":       []any{"h-card"},
 				"properties": item.Properties,

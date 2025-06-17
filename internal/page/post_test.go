@@ -1,8 +1,9 @@
 package page
 
 import (
-	"hawx.me/code/assert"
 	"testing"
+
+	"hawx.me/code/assert"
 )
 
 func TestSyndicationurl(t *testing.T) {
@@ -10,5 +11,5 @@ func TestSyndicationurl(t *testing.T) {
 	httpsUrl := syndicationUrl(atProtoUrl, "rosshendry.com")
 
 	assert.NotEqual(t, atProtoUrl, httpsUrl)
-	assert.Equal(t, "", httpsUrl)
+	assert.Equal(t, "https://bsky.app/profile/rosshendry.com/post/3lrjay3eyla2q", httpsUrl)
 }

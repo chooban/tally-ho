@@ -3,6 +3,7 @@ package blog
 import (
 	"log/slog"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 
@@ -33,7 +34,7 @@ func (b *Blog) sendUpdateWebmentions(location string, oldData, newData map[strin
 	links := findMentionedLinks(newData)
 
 	for _, oldLink := range findMentionedLinks(oldData) {
-		if !contains(oldLink, links) {
+		if !slices.Contains(links, oldLink) {
 			links = append(links, oldLink)
 		}
 	}

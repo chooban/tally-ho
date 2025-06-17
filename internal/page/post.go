@@ -116,13 +116,12 @@ func Post(data PostData) lmth.Node {
 										}
 										link := mention.Subject
 										if mfutil.Has(mention.Properties, "url") {
-											slog.Info("No url in mention")
 											link = templateGet(mention.Properties, "url")
 										}
 
-										slog.Info("Link: ", link)
+										slog.Info("Link: ", "link", link)
 										replyContents := templateGet(mention.Properties, "name")
-										slog.Info("replyContents ", replyContents)
+										slog.Info("Reply contents", "replyContents", replyContents)
 										if replyContents == "" {
 											return Li(lmth.Attr{},
 												lmth.Text(name),

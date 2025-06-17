@@ -5,3 +5,11 @@ tally-ho
 myweb/
 myconfig/
 mymedia/
+.DS_Store
+.env
+.idea/
+tallyho-key
+tallyho-key-cert.pub
+wireguard.conf
+blog.sqlite
+db.sqlite

@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"slices"
 	"strings"
 
 	"github.com/google/uuid"
@@ -53,7 +54,7 @@ func extension(contentType, filename string) string {
 	exts, err := mime.ExtensionsByType(contentType)
 
 	// why must this keep being changed
-	if contains(".jpg", exts) {
+	if slices.Contains(exts, ".jpg") {
 		return ".jpg"
 	}
 

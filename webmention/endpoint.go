@@ -118,7 +118,7 @@ func processMention(mention webmention, blog Blog) error {
 			photo := author.Properties["photo"]
 			switch v := photo[0].(type) {
 			case string:
-				props["photo"] = v
+				props["photo"] = []interface{}{v}
 			case map[string]string:
 				props["photo"] = []interface{}{v["value"]}
 			}

@@ -3,6 +3,8 @@ package blog
 import (
 	"errors"
 	"log/slog"
+	"maps"
+	"slices"
 	"time"
 
 	"hawx.me/code/numbersix"
@@ -76,6 +78,12 @@ func (b *Blog) Mention(source string, data map[string][]interface{}) error {
 		return err
 	}
 
+	keys := slices.Collect(maps.Keys(data))
+	if !(slices.Contains(keys, "in-reply-to") || slices.Contains(keys, "like-of") || slices.Contains(keys, "repost-of")) {
+		slog.Info("Received odd webmention")
+		return nil
+	}
+
 	if _, ok := data["hx-gone"]; ok {
 		return nil
 	}
@@ -91,7 +99,7 @@ func (b *Blog) MentionsForEntry(url string) (list []numbersix.Group, err error) 
 	}
 
 	slog.Info("Found mentions for url", "count", len(triples))
-	
+
 	list = numbersix.Grouped(triples)
 	return
 }

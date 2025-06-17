@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
@@ -59,7 +60,7 @@ func resolveCite(u string) (cite map[string]any, err error) {
 	data := microformats.ParseNode(root, uURL)
 
 	for _, item := range data.Items {
-		if contains("h-entry", item.Type) {
+		if slices.Contains(item.Type, "h-entry") {
 			props := map[string][]any{
 				"url": append([]any{u}, item.Properties["syndication"]...),
 			}
@@ -79,7 +80,7 @@ func resolveCite(u string) (cite map[string]any, err error) {
 			}
 
 			if authors := item.Properties["author"]; len(authors) > 0 {
-				if author, ok := authors[0].(*microformats.Microformat); ok && contains("h-card", author.Type) {
+				if author, ok := authors[0].(*microformats.Microformat); ok && slices.Contains(author.Type, "h-card") {
 					props["author"] = []any{
 						map[string]any{
 							"type":       []any{"h-card"},

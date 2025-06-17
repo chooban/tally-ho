@@ -20,12 +20,3 @@ func (b *Blog) Create(data map[string][]interface{}) (string, error) {
 
 	return location, nil
 }
-
-func contains(needle string, list []string) bool {
-	for _, x := range list {
-		if x == needle {
-			return true
-		}
-	}
-	return false
-}
