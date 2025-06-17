@@ -9,10 +9,10 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/feeds v1.2.0
 	github.com/mattn/go-sqlite3 v1.14.28
+	github.com/stretchr/testify v1.10.0
 	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80
 	golang.org/x/net v0.41.0
 	golang.org/x/oauth2 v0.30.0
-	hawx.me/code/assert v0.0.0-20200428180912-91e855e32e7d
 	hawx.me/code/indieauth v1.0.2
 	hawx.me/code/lmth v0.0.0-20250225112518-451e7ab7a447
 	hawx.me/code/mux v0.0.0-20200114141251-90c3d0ef8fe2
@@ -29,6 +29,7 @@ require (
 	github.com/bluesky-social/indigo v0.0.0-20240313175749-733547c2ba2c // indirect
 	github.com/carlmjohnson/versioninfo v0.22.5 // indirect
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-jsonpointer v0.0.0-20160814072949-ba0abeacc3dc // indirect
 	github.com/dustin/gojson v0.0.0-20160307161227-2e71ec9dd5ad // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -62,6 +63,7 @@ require (
 	github.com/multiformats/go-multihash v0.2.3 // indirect
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polydawn/refmt v0.89.1-0.20221221234430-40501e09de1f // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/whyrusleeping/cbor-gen v0.3.1 // indirect
@@ -76,6 +78,7 @@ require (
 	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.4.1 // indirect
 )
 

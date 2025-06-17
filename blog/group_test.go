@@ -3,7 +3,7 @@ package blog
 import (
 	"testing"
 
-	"hawx.me/code/assert"
+	"github.com/stretchr/testify/assert"
 	"hawx.me/code/numbersix"
 )
 

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"hawx.me/code/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 const waitTime = 5 * time.Millisecond

@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"hawx.me/code/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 type fakeGetDB struct {

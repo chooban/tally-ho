@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"hawx.me/code/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHubStoreSubscribe(t *testing.T) {

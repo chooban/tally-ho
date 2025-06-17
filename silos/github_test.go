@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"hawx.me/code/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGithub(t *testing.T) {

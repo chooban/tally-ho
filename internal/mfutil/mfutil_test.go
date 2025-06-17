@@ -3,7 +3,7 @@ package mfutil
 import (
 	"testing"
 
-	"hawx.me/code/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSafeGet(t *testing.T) {

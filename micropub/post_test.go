@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"hawx.me/code/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func withScope(scope string, handler http.Handler) http.Handler {

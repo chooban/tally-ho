@@ -3,7 +3,7 @@ package page
 import (
 	"testing"
 
-	"hawx.me/code/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSyndicationurl(t *testing.T) {
