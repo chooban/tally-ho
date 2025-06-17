@@ -25,7 +25,6 @@ import (
 func usage() {
 	fmt.Println(`Usage: tally-ho [options]
 
-	--config PATH=./config.toml
 	--web DIR=web
 	--db PATH=file::memory
 	--media-dir DIR
@@ -68,7 +67,7 @@ func main() {
 	slog.SetDefault(logger)
 	slog.SetLogLoggerLevel(slog.LevelInfo)
 
-	var conf = parseConfig(logger)
+	var conf = parseConfig()
 
 	baseURL, err := url.Parse(conf.BaseURL)
 	if err != nil {

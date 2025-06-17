@@ -1,10 +1,7 @@
 package main
 
 import (
-	"errors"
 	"flag"
-	"github.com/BurntSushi/toml"
-	"log/slog"
 	"os"
 )
 
@@ -24,28 +21,18 @@ const (
 	BlueskyAppKey = "BLUESKY_APP_KEY"
 )
 
-func parseConfig(logger *slog.Logger) config {
-
+func parseConfig() config {
 	var (
-		configPath = flag.String("config", "./config.toml", "")
-		webPath    = flag.String("web", "web", "")
-		dbPath     = flag.String("db", "file::memory:", "")
-		mediaDir   = flag.String("media-dir", "", "")
-		port       = flag.String("port", "8080", "")
-		socket     = flag.String("socket", "", "")
+		webPath  = flag.String("web", "web", "")
+		dbPath   = flag.String("db", "file::memory:", "")
+		mediaDir = flag.String("media-dir", "", "")
+		port     = flag.String("port", "8080", "")
+		socket   = flag.String("socket", "", "")
 	)
 	flag.Usage = usage
 	flag.Parse()
 
-	// First, try to read a config file
 	var conf config
-	if _, err := os.Stat(*configPath); errors.Is(err, os.ErrNotExist) {
-		logger.Warn("Config file does not exist")
-	} else {
-		if _, err := toml.DecodeFile(*configPath, &conf); err != nil {
-			logger.Info("config could not be decoded", slog.Any("err", err))
-		}
-	}
 
 	conf.DbPath = *dbPath
 	if p := os.Getenv(DbPath); p != "" {
