@@ -9,7 +9,7 @@ RUN apt-get update \
 WORKDIR /usr/src/app
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
-COPY . .
+COPY .. .
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /tallyho .
 
 RUN go build -v -o /tallyho .
@@ -26,7 +26,7 @@ RUN apt-get update \
 WORKDIR /usr/src/app
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
-COPY . .
+COPY .. .
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=${BUILDPLATFORM} go build -a -installsuffix cgo -o /tallyho .
 
 

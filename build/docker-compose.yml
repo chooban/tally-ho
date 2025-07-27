@@ -1,0 +1,120 @@
+services:
+  dns-server:
+    build:
+      context: ../
+      dockerfile: ./build/dns/Dockerfile
+    container_name: custom-dns-server
+    networks:
+      proxied:
+        ipv4_address: 172.20.0.10
+    restart: unless-stopped
+    volumes:
+      - ./dns/dnsmasq.conf:/etc/dnsmasq.conf:ro
+
+  blog:
+    build:
+      context: ../
+      dockerfile: ./build/blog/Dockerfile-dev
+    env_file: ".env"
+    container_name: blog
+    depends_on:
+      pds:
+        condition: service_healthy
+        restart: true
+    develop:
+      watch:
+        - action: sync
+          path: ../internal/
+          target: /usr/src/app/internal
+        - action: sync
+          path: ../auth/
+          target: /usr/src/app/auth
+        - action: sync
+          path: ../blog/
+          target: /usr/src/app/blog
+    volumes:
+      - ../localdev/mymedia:/media
+      - ../localdev/myweb:/web
+      - ../localdev/db:/db
+    networks:
+      - proxied
+    dns:
+      - 172.20.0.10
+    ports:
+      - "8080:8080"
+
+  sparkles:
+    platform: linux/amd64
+    container_name: sparkles
+    build:
+      dockerfile: sparkles/Dockerfile
+    environment:
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=sparkles.tallyho.test
+      - NODE_EXTRA_CA_CERTS=/certs/root.crt
+    networks:
+      - proxied
+    volumes:
+      - ../localdev/caddy/caddy/pki/authorities/tallyho/:/certs
+    dns:
+      - 172.20.0.10
+
+  auth:
+    container_name: auth
+    build:
+      context: ../
+      dockerfile: ./build/auth/Dockerfile
+    volumes:
+      - ../localdev/auth/config/:/config
+      - ../localdev/auth/data/:/data
+    networks:
+      - proxied
+    dns:
+      - 172.20.0.10
+
+  caddy:
+    container_name: caddy
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    volumes:
+      - type: bind
+        source: ../localdev/caddy/data
+        target: /data
+      - type: bind
+        source: ../localdev/caddy/caddy
+        target: /caddy
+      - type: bind
+        source: ../localdev/caddy/etc/
+        target: /etc/caddy
+    networks:
+      - proxied
+
+  pds:
+    container_name: pds
+    image: ghcr.io/bluesky-social/pds:latest
+    restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+      timeout: 3s
+      retries: 3
+      interval: 5m
+      start_period: 5s
+      start_interval: 5s
+    volumes:
+      - type: bind
+        source: ../localdev/pds
+        target: /pds
+    env_file:
+      - pds/pds.env
+    networks:
+      proxied:
+    dns:
+      - 172.20.0.10
+
+networks:
+  proxied:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

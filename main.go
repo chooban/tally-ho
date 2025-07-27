@@ -33,15 +33,18 @@ func usage() {
 }
 
 type config struct {
-	Me          string
-	Name        string
-	Title       string
-	Description string
-	BaseURL     string
-	MediaURL    string
-	MediaDir    string
-	DbPath      string
-	WebPath     string
+	Me               string
+	Name             string
+	Title            string
+	Description      string
+	BaseURL          string
+	MediaURL         string
+	MediaDir         string
+	DbPath           string
+	WebPath          string
+	AuthEndpoint     string
+	TokenEndpoint    string
+	BypassValidation bool
 
 	Flickr, Twitter struct {
 		ConsumerKey       string
@@ -56,6 +59,7 @@ type config struct {
 	Bluesky struct {
 		Handle string
 		AppKey string
+		Pds    string
 	}
 	Port   string
 	Socket string
@@ -147,19 +151,18 @@ func main() {
 	}
 
 	if conf.Bluesky.AppKey != "" {
-		bluesky, err := silos.Bluesky(silos.BlueskyOptions{
+		pdsUrl, _ := url.Parse(conf.Bluesky.Pds)
+		bluesky := silos.Bluesky(silos.BlueskyOptions{
 			Handle: conf.Bluesky.Handle,
 			AppKey: conf.Bluesky.AppKey,
+			Pds:    pdsUrl,
 		})
-		if err != nil {
-			logger.Warn("bluesky", slog.Any("err", err))
-		} else {
-			blogSilos = append(blogSilos, bluesky)
-			micropubSyndicateTo = append(micropubSyndicateTo, micropub.SyndicateTo{
-				UID:  bluesky.UID(),
-				Name: bluesky.Name(),
-			})
-		}
+		logger.Info("Adding bluesky syndication")
+		blogSilos = append(blogSilos, bluesky)
+		micropubSyndicateTo = append(micropubSyndicateTo, micropub.SyndicateTo{
+			UID:  bluesky.UID(),
+			Name: bluesky.Name(),
+		})
 	} else {
 		logger.Info("Not configuring Bluesky syndicator")
 	}
@@ -175,13 +178,19 @@ func main() {
 
 	websubhub := websub.New(baseURL.ResolveReference(hubEndpointURL).String(), hubStore)
 
+	authURL, _ := url.Parse(conf.AuthEndpoint)
+	tokenURL, _ := url.Parse(conf.TokenEndpoint)
+	myUrl, _ := url.Parse(conf.Me)
+
 	b, err := blog.New(logger, blog.Config{
-		Me:          conf.Me,
+		Me:          myUrl,
 		Name:        conf.Name,
 		Title:       conf.Title,
 		Description: conf.Description,
 		BaseURL:     baseURL,
 		MediaURL:    mediaURL,
+		AuthURL:     authURL,
+		TokenURL:    tokenURL,
 		MediaDir:    conf.MediaDir,
 		HubURL:      baseURL.ResolveReference(hubEndpointURL).String(),
 	}, db, websubhub, blogSilos)
@@ -206,7 +215,9 @@ func main() {
 		conf.Me,
 		baseURL.ResolveReference(mediaEndpointURL).String(),
 		micropubSyndicateTo,
-		fw))
+		fw,
+		conf.BypassValidation,
+	))
 	http.Handle("/-/webmention", webmention.Endpoint(b))
 	http.Handle("/-/media", auth.Only(conf.Me, media.Endpoint(fw, auth.HasScope)))
 	http.Handle("/-/hub", websubhub)
