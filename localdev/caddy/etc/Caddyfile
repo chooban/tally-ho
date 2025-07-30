@@ -1,0 +1,65 @@
+{
+	storage file_system /caddy/
+	debug
+	pki {
+		ca tallyho {
+			name "Tallyho"
+		}
+	}
+}
+
+acme.tallyho.test {
+	tls {
+		issuer internal {
+			ca tallyho
+		}
+	}
+	acme_server {
+		ca tallyho
+	}
+}
+
+sparkles.tallyho.test {
+	tls {
+		issuer internal {
+			ca tallyho
+		}
+	}
+	reverse_proxy sparkles:8888
+}
+
+pdsls.tallyho.test {
+	tls {
+		issuer internal {
+			ca tallyho
+		}
+	}
+	reverse_proxy pdsls:13213
+}
+
+blog.tallyho.test {
+	tls {
+		issuer internal {
+			ca tallyho
+		}
+	}
+	reverse_proxy blog:8080
+}
+
+auth.tallyho.test {
+	tls {
+		issuer internal {
+			ca tallyho
+		}
+	}
+	reverse_proxy auth:8080
+}
+
+pds.tallyho.test, *.tallyho.test {
+	tls {
+		issuer internal {
+			ca tallyho
+		}
+	}
+	reverse_proxy pds:3000
+}

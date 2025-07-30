@@ -13,3 +13,5 @@ tallyho-key-cert.pub
 wireguard.conf
 blog.sqlite
 db.sqlite
+localdev/caddy/caddy/
+localdev/caddy/data/

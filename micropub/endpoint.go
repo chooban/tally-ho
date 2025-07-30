@@ -27,6 +27,7 @@ func Endpoint(
 	mediaUploadURL string,
 	syndicateTo []SyndicateTo,
 	fw media.FileWriter,
+	bypassValidation bool,
 ) http.Handler {
 	return auth.Only(me, mux.Method{
 		"POST": postHandler(db, fw),

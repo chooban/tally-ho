@@ -3,6 +3,18 @@
 A micropub speaking blog.
 
 
+## Development
+
+### Set Up dnsmasq
+
+You can follow [this guide](https://gist.github.com/ogrrd/5831371) for installing it on macos.
+
+### Update the localdev files
+
+1. Set up the PDS config
+1. Start the caddy server
+1. Start everything else
+
 ## usage
 
 This is an almost all-in-one solution for running an "IndieWeb" blog. To get

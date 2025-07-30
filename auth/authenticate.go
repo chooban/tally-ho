@@ -20,13 +20,15 @@ import (
 //   - including a valid token in the Authorization header with a prefix of
 //     'Bearer'.
 func Only(me string, next http.Handler) http.HandlerFunc {
-	endpoints, err := indieauth.FindEndpoints(me)
-	if err != nil {
-		slog.Error("find indieauth endpoints", slog.Any("err", err))
-		panic("could not start")
-	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("Finding indieauth endpoint", slog.String("me", me))
+		endpoints, err := indieauth.FindEndpoints(me)
+		if err != nil {
+			slog.Error("find indieauth endpoints", slog.Any("err", err))
+			return
+		}
+
 		auth := r.Header.Get("Authorization")
 		if auth == "" || strings.TrimSpace(auth) == "Bearer" {
 			if r.FormValue("access_token") == "" {
@@ -68,12 +70,32 @@ func Only(me string, next http.Handler) http.HandlerFunc {
 		}
 
 		if tokenData.Me != me {
-			slog.Error("token is forbidden", slog.String("me", tokenData.Me))
+			slog.Warn("token does not match user", slog.String("me", me), slog.String("token", tokenData.Me))
 			w.Header().Set("Content-Type", "application/json")
 			http.Error(w, `{"error":"forbidden"}`, http.StatusForbidden)
 			return
 		}
 
+		next.ServeHTTP(w, r.WithContext(
+			context.WithValue(context.WithValue(r.Context(),
+				scopesKey, strings.Fields(tokenData.Scope)),
+				clientKey, tokenData.ClientID,
+			),
+		))
+	}
+}
+
+func BypassAuth(me string, next http.Handler) http.HandlerFunc {
+	var tokenData struct {
+		Me       string `json:"me"`
+		ClientID string `json:"client_id"`
+		Scope    string `json:"scope"`
+	}
+	tokenData.Me = me
+	tokenData.ClientID = "sparkles"
+	tokenData.Scope = "create"
+
+	return func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, r.WithContext(
 			context.WithValue(context.WithValue(r.Context(),
 				scopesKey, strings.Fields(tokenData.Scope)),

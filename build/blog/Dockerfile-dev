@@ -8,7 +8,11 @@ RUN apt-get update \
     apt-get install --no-install-recommends --assume-yes \
       build-essential \
       libsqlite3-dev \
-      libsqlite3-0
+      libsqlite3-0 \
+      ca-certificates
+
+COPY localdev/caddy/caddy/pki/authorities/tallyho/root.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
 
 RUN go install github.com/mitranim/gow@latest
 
@@ -16,7 +20,7 @@ WORKDIR /usr/src/app
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
-COPY . .
+COPY .. .
 
 ENV CONFIG_DIR=/config
 ENV MEDIA_DIR=/media

@@ -18,7 +18,7 @@ type PostData struct {
 	Mentions []numbersix.Group
 }
 
-func Post(data PostData) lmth.Node {
+func Post(conf BlogData, data PostData) lmth.Node {
 	meta := data.Posts.Meta
 
 	syndication := func() lmth.Node {
@@ -60,11 +60,7 @@ func Post(data PostData) lmth.Node {
 	}
 
 	return Html(lmth.Attr{"lang": "en", "prefix": "og: http://ogp.me/ns#"},
-		pageHead(templateTruncate(DecideTitle(data.Entry), 70),
-			Meta(lmth.Attr{"property": "og:type", "content": "website"}),
-			Meta(lmth.Attr{"property": "og:title", "content": DecideTitle(data.Entry)}),
-			Meta(lmth.Attr{"property": "og:url", "content": templateGet(data.Entry, "url")}),
-		),
+		pageHead(conf, templateTruncate(DecideTitle(data.Entry), 70), Meta(lmth.Attr{"property": "og:type", "content": "website"}), Meta(lmth.Attr{"property": "og:title", "content": DecideTitle(data.Entry)}), Meta(lmth.Attr{"property": "og:url", "content": templateGet(data.Entry, "url")})),
 		Body(lmth.Attr{"class": "no-hero"},
 			header(),
 			Main(lmth.Attr{},
@@ -149,7 +145,7 @@ func Post(data PostData) lmth.Node {
 				),
 			),
 		),
-		pageFooter(templateTruncate(DecideTitle(data.Entry), 30), templateGet(data.Entry, "url")),
+		pageFooter(conf, templateTruncate(DecideTitle(data.Entry), 30), templateGet(data.Entry, "url")),
 	)
 }
 

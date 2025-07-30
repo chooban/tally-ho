@@ -16,12 +16,14 @@ import (
 )
 
 type Config struct {
-	Me          string
+	Me          *url.URL
 	Name        string
 	Title       string
 	Description string
 	BaseURL     *url.URL
 	MediaURL    *url.URL
+	AuthURL     *url.URL
+	TokenURL    *url.URL
 	DbPath      string
 	MediaDir    string
 	HubURL      string
@@ -121,6 +123,13 @@ func (b *Blog) Handler() http.Handler {
 		http.Error(w, "something unexpected happened", http.StatusInternalServerError)
 	}
 
+	blogConfig := page.BlogData{
+		AuthURL:  b.config.AuthURL,
+		TokenURL: b.config.TokenURL,
+		BaseURL:  baseURL,
+		HomeURL:  b.config.Me,
+	}
+
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) error {
 		showLatest := true
 
@@ -145,7 +154,7 @@ func (b *Blog) Handler() http.Handler {
 		w.Header().Add("Link", `<`+indexURL+`>; rel="self"`)
 		w.Header().Add("Link", `<`+b.config.HubURL+`>; rel="hub"`)
 
-		if _, err := page.List(page.ListData{
+		if _, err := page.List(blogConfig, page.ListData{
 			Title:        b.config.Title,
 			GroupedPosts: groupLikes(posts),
 			OlderThan:    olderThan,
@@ -180,7 +189,7 @@ func (b *Blog) Handler() http.Handler {
 			olderThan = "NOMORE"
 		}
 
-		if _, err := page.List(page.ListData{
+		if _, err := page.List(blogConfig, page.ListData{
 			Title:        b.config.Title,
 			GroupedPosts: groupLikes(posts),
 			OlderThan:    olderThan,
@@ -216,7 +225,7 @@ func (b *Blog) Handler() http.Handler {
 			olderThan = "NOMORE"
 		}
 
-		if _, err := page.List(page.ListData{
+		if _, err := page.List(blogConfig, page.ListData{
 			Title:        b.config.Title,
 			GroupedPosts: groupLikes(posts),
 			OlderThan:    olderThan,
@@ -248,7 +257,7 @@ func (b *Blog) Handler() http.Handler {
 			return fmt.Errorf("mentions for entry: %w", err)
 		}
 
-		if _, err := page.Post(page.PostData{
+		if _, err := page.Post(blogConfig, page.PostData{
 			Entry: entry,
 			Posts: GroupedPosts{
 				Type: "entry",
@@ -270,7 +279,7 @@ func (b *Blog) Handler() http.Handler {
 			return err
 		}
 
-		if _, err := page.Day(page.DayData{
+		if _, err := page.Day(blogConfig, page.DayData{
 			Ymd:   ymd,
 			Items: likes,
 		}).WriteTo(w); err != nil {
@@ -301,7 +310,7 @@ func (b *Blog) Handler() http.Handler {
 			olderThan = "NOMORE"
 		}
 
-		if _, err := page.Mentions(page.MentionsData{
+		if _, err := page.Mentions(blogConfig, page.MentionsData{
 			Title:      "mentions",
 			Items:      mentions,
 			OlderThan:  olderThan,

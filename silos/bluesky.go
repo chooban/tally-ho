@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net/url"
 
 	gobot "github.com/danrusei/gobot-bsky"
 	"hawx.me/code/tally-ho/internal/mfutil"
@@ -14,32 +15,26 @@ const BlueskyUID = "https://bsky.app"
 type BlueskyOptions struct {
 	Handle string
 	AppKey string
+	Pds    *url.URL
 }
 
-func Bluesky(options BlueskyOptions) (*blueskyClient, error) {
+func Bluesky(options BlueskyOptions) *BlueskyClient {
 	ctx := context.Background()
-	agent := gobot.NewAgent(ctx, "https://bsky.social", options.Handle, options.AppKey)
-	//client, err := botsky.NewClient(ctx, options.Handle, options.AppKey)
-	//if err != nil {
-	//	slog.Error(err.Error())
-	//	return nil, err
-	//}
-	agent.Connect(ctx)
+	agent := gobot.NewAgent(ctx, options.Pds.String(), options.Handle, options.AppKey)
 
-	slog.Info("Returning bluesky client")
-	return &blueskyClient{client: &agent, handle: options.Handle}, nil
+	return &BlueskyClient{client: &agent, handle: options.Handle}
 }
 
-type blueskyClient struct {
+type BlueskyClient struct {
 	client *gobot.BskyAgent
 	handle string
 }
 
-func (c *blueskyClient) Name() string {
+func (c *BlueskyClient) Name() string {
 	return "@" + c.handle
 }
 
-func (c *blueskyClient) UID() string {
+func (c *BlueskyClient) UID() string {
 	return BlueskyUID
 }
 
@@ -48,9 +43,14 @@ func conv[T any](x any) T {
 	return v
 }
 
-func (c *blueskyClient) Create(data map[string][]interface{}) (location string, err error) {
+func (c *BlueskyClient) Create(data map[string][]interface{}) (location string, err error) {
+	err = c.client.Connect(context.TODO())
+	if err != nil {
+		return "", err
+	}
 	switch data["hx-kind"][0].(string) {
 	case "note":
+		slog.Info("Posting note to bluesky")
 		noteContent, ok := mfutil.Get(data, "content.text", "content").(string)
 		if !ok {
 			return "", errors.New("invalid note content")

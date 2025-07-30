@@ -1,51 +1,42 @@
 package main
 
 import (
-	"errors"
 	"flag"
-	"github.com/BurntSushi/toml"
-	"log/slog"
 	"os"
 )
 
 const (
-	DbPath        = "DB_PATH"
-	MediaDir      = "MEDIA_DIR"
-	WebPath       = "WEB_PATH"
-	Port          = "PORT"
-	Socket        = "SOCKET"
-	MeUrl         = "MY_URL"
-	MeName        = "MY_NAME"
-	Title         = "SITE_TITLE"
-	Description   = "SITE_DESCRIPTION"
-	BaseUrl       = "BASE_URL"
-	MediaUrl      = "MEDIA_URL"
-	BlueskyHandle = "BLUESKY_HANDLE"
-	BlueskyAppKey = "BLUESKY_APP_KEY"
+	DbPath           = "DB_PATH"
+	MediaDir         = "MEDIA_DIR"
+	WebPath          = "WEB_PATH"
+	Port             = "PORT"
+	Socket           = "SOCKET"
+	MeUrl            = "MY_URL"
+	MeName           = "MY_NAME"
+	Title            = "SITE_TITLE"
+	Description      = "SITE_DESCRIPTION"
+	BaseUrl          = "BASE_URL"
+	MediaUrl         = "MEDIA_URL"
+	BlueskyHandle    = "BLUESKY_HANDLE"
+	BlueskyAppKey    = "BLUESKY_APP_KEY"
+	BlueskyPdsUrl    = "BLUESKY_PDS_URL"
+	AuthUrl          = "AUTH_ENDPOINT"
+	TokenUrl         = "TOKEN_ENDPOINT"
+	BypassValidation = "BYPASS_VALIDATION"
 )
 
-func parseConfig(logger *slog.Logger) config {
-
+func parseConfig() config {
 	var (
-		configPath = flag.String("config", "./config.toml", "")
-		webPath    = flag.String("web", "web", "")
-		dbPath     = flag.String("db", "file::memory:", "")
-		mediaDir   = flag.String("media-dir", "", "")
-		port       = flag.String("port", "8080", "")
-		socket     = flag.String("socket", "", "")
+		webPath  = flag.String("web", "web", "")
+		dbPath   = flag.String("db", "file::memory:", "")
+		mediaDir = flag.String("media-dir", "", "")
+		port     = flag.String("port", "8080", "")
+		socket   = flag.String("socket", "", "")
 	)
 	flag.Usage = usage
 	flag.Parse()
 
-	// First, try to read a config file
 	var conf config
-	if _, err := os.Stat(*configPath); errors.Is(err, os.ErrNotExist) {
-		logger.Warn("Config file does not exist")
-	} else {
-		if _, err := toml.DecodeFile(*configPath, &conf); err != nil {
-			logger.Info("config could not be decoded", slog.Any("err", err))
-		}
-	}
 
 	conf.DbPath = *dbPath
 	if p := os.Getenv(DbPath); p != "" {
@@ -87,11 +78,27 @@ func parseConfig(logger *slog.Logger) config {
 	if p := os.Getenv(MediaUrl); p != "" {
 		conf.MediaURL = p
 	}
+	if p := os.Getenv(AuthUrl); p != "" {
+		conf.AuthEndpoint = p
+	}
+	if p := os.Getenv(TokenUrl); p != "" {
+		conf.TokenEndpoint = p
+	}
 	if p := os.Getenv(BlueskyAppKey); p != "" {
 		conf.Bluesky.AppKey = p
 	}
 	if p := os.Getenv(BlueskyHandle); p != "" {
 		conf.Bluesky.Handle = p
+	}
+	if p := os.Getenv(BlueskyPdsUrl); p != "" {
+		conf.Bluesky.Pds = p
+	} else {
+		conf.Bluesky.Pds = "https://bsky.social"
+	}
+	if p := os.Getenv(BypassValidation); p != "" {
+		if p == "true" {
+			conf.BypassValidation = true
+		}
 	}
 
 	return conf

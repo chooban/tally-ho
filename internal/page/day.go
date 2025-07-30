@@ -13,7 +13,7 @@ type DayData struct {
 	Items []numbersix.Group
 }
 
-func Day(data DayData) lmth.Node {
+func Day(conf BlogData, data DayData) lmth.Node {
 	formattedTime := data.Ymd
 
 	t, err := time.Parse(time.DateOnly, data.Ymd)
@@ -22,7 +22,7 @@ func Day(data DayData) lmth.Node {
 	}
 
 	return Html(lmth.Attr{"lang": "en"},
-		pageHead("likes for "+formattedTime),
+		pageHead(conf, "likes for "+formattedTime),
 		Body(lmth.Attr{"class": "no-hero"},
 			header(),
 			Main(lmth.Attr{},
@@ -38,6 +38,6 @@ func Day(data DayData) lmth.Node {
 				}, data.Items),
 			),
 		),
-		pageFooter("likes", "", formattedTime, "/likes/"+data.Ymd),
+		pageFooter(conf, "likes", "", formattedTime, "/likes/"+data.Ymd),
 	)
 }
