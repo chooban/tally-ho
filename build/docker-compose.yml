@@ -15,7 +15,9 @@ services:
     build:
       context: ../
       dockerfile: ./build/blog/Dockerfile-dev
-    env_file: ".env"
+    env_file:
+      - local.env
+      - secrets.env
     container_name: blog
     depends_on:
       pds:
@@ -107,6 +109,8 @@ services:
         target: /pds
     env_file:
       - pds/pds.env
+      - local.env
+      - secrets.env
     networks:
       proxied:
     dns:

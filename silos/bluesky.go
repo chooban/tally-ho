@@ -55,7 +55,7 @@ func (c *BlueskyClient) Create(data map[string][]interface{}) (location string, 
 		if !ok {
 			return "", errors.New("invalid note content")
 		}
-		//hashTags := conv[[]string](mfutil.GetAll(data, "category"))
+
 		postText, err := gobot.NewPostBuilder(noteContent).Build()
 		if err != nil {
 			return "", err

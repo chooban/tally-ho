@@ -15,3 +15,6 @@ blog.sqlite
 db.sqlite
 localdev/caddy/caddy/
 localdev/caddy/data/
+build/secrets.env
+localdev/auth/
+localdev/pds/
